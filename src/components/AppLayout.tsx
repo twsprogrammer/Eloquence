@@ -99,8 +99,12 @@ export default function AppLayout() {
 
         <div className="p-4 border-t border-clay/10">
           <div className="flex items-center gap-3 px-2 py-2 mb-4">
-            <div className="w-8 h-8 rounded-full bg-maroon/10 flex items-center justify-center text-maroon font-bold">
-              {profile?.username?.[0]?.toUpperCase()}
+            <div className="w-8 h-8 rounded-full bg-maroon/10 flex items-center justify-center text-maroon font-bold overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt={profile.username} className="w-full h-full object-cover" />
+              ) : (
+                profile?.username?.[0]?.toUpperCase()
+              )}
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="text-xs font-bold truncate">{profile?.full_name}</p>
@@ -122,9 +126,6 @@ export default function AppLayout() {
         <header className="sticky top-0 z-10 px-8 py-4 backdrop-blur-md bg-cream/80 border-b border-clay/5 flex justify-between items-center">
            <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-widest text-clay/40">Workspace</span>
-           </div>
-           <div className="flex items-center gap-4">
-              <span className="text-[10px] font-mono text-clay/30 uppercase">Local Time: {new Date().toLocaleTimeString()}</span>
            </div>
         </header>
 

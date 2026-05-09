@@ -6,6 +6,7 @@ export interface Profile {
   full_name: string;
   email: string;
   role: UserRole;
+  avatar_url?: string;
   created_at: string;
 }
 
