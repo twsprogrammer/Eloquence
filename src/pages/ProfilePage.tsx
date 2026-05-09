@@ -34,7 +34,7 @@ export default function ProfilePage() {
       setMessage(null);
 
       if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('Pilih file terlebih dahulu.');
+        throw new Error('Please select a file first.');
       }
 
       const file = event.target.files[0];
@@ -54,7 +54,7 @@ export default function ProfilePage() {
            reader.onload = (e) => {
              const base64 = e.target?.result as string;
              setFormData(prev => ({ ...prev, avatarUrl: base64 }));
-             setMessage({ type: 'success', text: 'Pratinjau foto berhasil! (Simpan untuk memperbarui profil)' });
+             setMessage({ type: 'success', text: 'Preview successful! (Save to update profile)' });
            };
            reader.readAsDataURL(file);
            return;
@@ -68,10 +68,10 @@ export default function ProfilePage() {
         .getPublicUrl(filePath);
 
       setFormData(prev => ({ ...prev, avatarUrl: publicUrl }));
-      setMessage({ type: 'success', text: 'Foto berhasil diunggah! Jangan lupa klik simpan.' });
+      setMessage({ type: 'success', text: 'Photo uploaded successfully! Don\'t forget to click save.' });
     } catch (err: any) {
       console.error('Error uploading:', err);
-      setMessage({ type: 'error', text: `Gagal unggah: ${err.message}. Pastikan bucket 'avatars' sudah dibuat di Supabase dan bersifat publik.` });
+      setMessage({ type: 'error', text: `Upload failed: ${err.message}. Ensure the 'avatars' bucket exists and is public.` });
     } finally {
       setUploading(false);
     }
@@ -97,7 +97,7 @@ export default function ProfilePage() {
       if (error) throw error;
       
       await refreshProfile();
-      setMessage({ type: 'success', text: 'Profil berhasil diperbarui!' });
+      setMessage({ type: 'success', text: 'Profile updated successfully!' });
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message });
     } finally {
@@ -108,8 +108,8 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8 pb-20">
       <header>
-        <h1 className="text-4xl font-serif">Pengaturan Akun</h1>
-        <p className="text-clay/50 text-sm">Kelola profil dan foto Anda dari perangkat Anda</p>
+        <h1 className="text-4xl font-serif">Account Settings</h1>
+        <p className="text-clay/50 text-sm">Manage your profile and photos from your device</p>
       </header>
 
       <motion.div 
@@ -159,14 +159,14 @@ export default function ProfilePage() {
                   onClick={() => fileInputRef.current?.click()}
                   className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-maroon hover:text-clay transition-colors"
                 >
-                  <Upload className="w-3.5 h-3.5" /> Pilih Foto Baru
+                  <Upload className="w-3.5 h-3.5" /> Choose New Photo
                 </button>
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] uppercase font-bold tracking-widest text-clay/40 ml-4">Alamat Email</label>
+            <label className="text-[10px] uppercase font-bold tracking-widest text-clay/40 ml-4">Email Address</label>
             <input
               disabled
               type="text"
@@ -176,14 +176,14 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] uppercase font-bold tracking-widest text-clay/40 ml-4">Nama Lengkap</label>
+            <label className="text-[10px] uppercase font-bold tracking-widest text-clay/40 ml-4">Full Name</label>
             <div className="relative group">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-clay/30 group-focus-within:text-maroon transition-colors" />
               <input
                 required
                 type="text"
                 className="w-full pl-12 pr-6 py-4 bg-cream/50 border border-transparent focus:border-maroon/20 focus:bg-white focus:outline-none rounded-2xl transition-all font-medium"
-                placeholder="Nama Lengkap"
+                placeholder="Full Name"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
               />
@@ -220,7 +220,7 @@ export default function ProfilePage() {
             type="submit"
             className="w-full bg-maroon text-cream py-4 rounded-2xl font-bold shadow-xl shadow-maroon/20 hover:bg-maroon-light transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> Simpan Perubahan</>}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> Save Changes</>}
           </button>
         </form>
       </motion.div>

@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Search, Loader2, Copy, Check, Book } from 'lucide-react';
+import { Search, Loader2, Copy, Check, Book, FileDown } from 'lucide-react';
 import { askGemini } from '@/lib/gemini';
-import { cn } from '@/lib/utils';
+import { cn, exportToPDF } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { saveHistory } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function SynonymFinderPage() {
+  const { user } = useAuth();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -33,6 +36,22 @@ Output Format:
     const output = await askGemini(prompt, systemPrompt);
     setResult(output);
     setLoading(false);
+
+    // Save to history
+    if (user && output) {
+      saveHistory({
+        user_id: user.id,
+        feature_type: 'synonym-finder',
+        query_text: text,
+        result_text: output
+      });
+    }
+  };
+
+  const handleExport = () => {
+    if (result) {
+      exportToPDF('result-content', `synonyms-${text.toLowerCase()}`);
+    }
   };
 
   const copyToClipboard = () => {
@@ -82,18 +101,30 @@ Output Format:
             animate={{ opacity: 1, y: 0 }}
             className="bg-white p-10 rounded-[40px] border border-clay/5 shadow-xl relative"
           >
-            <button 
-              onClick={copyToClipboard}
-              className="absolute top-8 right-8 p-3 rounded-xl hover:bg-clay/5 transition-colors text-clay/40 group"
-              title="Salin hasil"
-            >
-              {copied ? <Check className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5 group-hover:text-maroon transition-colors" />}
-            </button>
+            <div className="absolute top-8 right-8 flex gap-2">
+              <button
+                onClick={handleExport}
+                className="p-3 rounded-xl hover:bg-clay/5 transition-colors text-clay/40 group relative"
+                title="Export as PDF"
+              >
+                <FileDown className="w-5 h-5 group-hover:text-maroon transition-colors" />
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-clay text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Export PDF</span>
+              </button>
+              <button 
+                onClick={copyToClipboard}
+                className="p-3 rounded-xl hover:bg-clay/5 transition-colors text-clay/40 group"
+                title="Copy result"
+              >
+                {copied ? <Check className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5 group-hover:text-maroon transition-colors" />}
+              </button>
+            </div>
             
-            <h2 className="text-5xl font-serif text-maroon mb-12 border-b border-maroon/5 pb-6">"{text}"</h2>
-            
-            <div className="markdown-body">
-              <ReactMarkdown>{result}</ReactMarkdown>
+            <div id="result-content">
+              <h2 className="text-5xl font-serif text-maroon mb-12 border-b border-maroon/5 pb-6">"{text}"</h2>
+              
+              <div className="markdown-body">
+                <ReactMarkdown>{result}</ReactMarkdown>
+              </div>
             </div>
           </motion.div>
         )}

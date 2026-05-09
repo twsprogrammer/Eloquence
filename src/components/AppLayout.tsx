@@ -12,7 +12,8 @@ import {
   LogOut,
   ChevronRight,
   ShieldAlert,
-  UserCircle
+  UserCircle,
+  History
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
   { to: '/app', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/app/history', icon: History, label: 'History' },
   { to: '/app/smart-translate', icon: Languages, label: 'Smart Translate' },
   { to: '/app/fix-improve', icon: Sparkles, label: 'Fix & Improve' },
   { to: '/app/word-insight', icon: BookOpen, label: 'Word Insight' },

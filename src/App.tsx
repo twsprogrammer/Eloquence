@@ -9,6 +9,7 @@ import LoginPage from '@/pages/LoginPage';
 import AuthCallbackPage from '@/pages/AuthCallbackPage';
 import DashboardPage from '@/pages/DashboardPage';
 import ProfilePage from '@/pages/ProfilePage';
+import HistoryPage from '@/pages/HistoryPage';
 import SmartTranslatePage from '@/pages/features/SmartTranslatePage';
 import FixImprovePage from '@/pages/features/FixImprovePage';
 import WordInsightPage from '@/pages/features/WordInsightPage';
@@ -73,6 +74,7 @@ export default function App() {
           >
             <Route index element={<DashboardPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="history" element={<HistoryPage />} />
             <Route path="smart-translate" element={<SmartTranslatePage />} />
             <Route path="fix-improve" element={<FixImprovePage />} />
             <Route path="word-insight" element={<WordInsightPage />} />

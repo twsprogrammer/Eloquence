@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Zap, Loader2, SendHorizonal } from 'lucide-react';
+import { Zap, Loader2, SendHorizonal, FileDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { askGemini } from '@/lib/gemini';
-import { cn } from '@/lib/utils';
+import { cn, exportToPDF } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { saveHistory } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LevelSimplifierPage() {
+  const { user } = useAuth();
   const [text, setText] = useState('');
   const [level, setLevel] = useState('B1');
   const [loading, setLoading] = useState(false);
@@ -30,6 +33,22 @@ Rules:
     const output = await askGemini(prompt, systemPrompt);
     setResult(output);
     setLoading(false);
+
+    // Save to history
+    if (user && output) {
+      saveHistory({
+        user_id: user.id,
+        feature_type: 'level-simplifier',
+        query_text: text,
+        result_text: output
+      });
+    }
+  };
+
+  const handleExport = () => {
+    if (result) {
+      exportToPDF('result-content', `simplified-${level.toLowerCase()}`);
+    }
   };
 
   return (
@@ -87,11 +106,24 @@ Rules:
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-10 rounded-[40px] border border-clay/5 shadow-xl"
+            className="bg-white p-10 rounded-[40px] border border-clay/5 shadow-xl relative"
           >
-            <h3 className="text-[10px] uppercase tracking-widest font-bold text-maroon mb-6 border-b border-maroon/10 pb-4">Simplified Version ({level})</h3>
-            <div className="text-xl leading-relaxed text-clay/80 font-sans markdown-body">
-              <ReactMarkdown>{result}</ReactMarkdown>
+            <div className="absolute top-8 right-8">
+              <button
+                onClick={handleExport}
+                className="bg-maroon/5 text-maroon p-2 rounded-full hover:bg-maroon/10 transition-colors group relative"
+                title="Export as PDF"
+              >
+                <FileDown className="w-5 h-5 transition-colors" />
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-clay text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Export PDF</span>
+              </button>
+            </div>
+            
+            <div id="result-content" className="p-2">
+              <h3 className="text-[10px] uppercase tracking-widest font-bold text-maroon mb-6 border-b border-maroon/10 pb-4">Simplified Version ({level})</h3>
+              <div className="text-xl leading-relaxed text-clay/80 font-sans markdown-body">
+                <ReactMarkdown>{result}</ReactMarkdown>
+              </div>
             </div>
           </motion.div>
         )}

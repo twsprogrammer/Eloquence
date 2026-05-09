@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { MessageSquare, Loader2, SendHorizonal } from 'lucide-react';
+import { MessageSquare, Loader2, SendHorizonal, FileDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { askGemini } from '@/lib/gemini';
-import { cn } from '@/lib/utils';
+import { cn, exportToPDF } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { saveHistory } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function QuickReplyPage() {
+  const { user } = useAuth();
   const [text, setText] = useState('');
   const [tone, setTone] = useState('polite');
   const [loading, setLoading] = useState(false);
@@ -38,6 +41,22 @@ Output Format:
     const output = await askGemini(prompt, systemPrompt);
     setResult(output);
     setLoading(false);
+
+    // Save to history
+    if (user && output) {
+      saveHistory({
+        user_id: user.id,
+        feature_type: 'quick-reply',
+        query_text: text,
+        result_text: output
+      });
+    }
+  };
+
+  const handleExport = () => {
+    if (result) {
+      exportToPDF('result-content', `quick-reply-${Date.now()}`);
+    }
   };
 
   return (
@@ -95,21 +114,34 @@ Output Format:
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid gap-6"
+            className="space-y-6"
           >
-             {result.split('###').map((part, i) => {
-                if (!part.trim()) return null;
-                const [title, ...contentLines] = part.split('\n');
-                const content = contentLines.join('\n').trim();
-                return (
-                  <div key={i} className="bg-white p-8 rounded-[32px] border border-clay/5 shadow-sm hover:shadow-md transition-shadow">
-                     <h4 className="text-maroon font-serif text-lg mb-4 italic">{title.trim()}</h4>
-                     <div className="text-xl text-clay/80 leading-relaxed markdown-body">
-                        <ReactMarkdown>{content}</ReactMarkdown>
-                     </div>
-                  </div>
-                );
-              })}
+            <div className="flex justify-between items-center px-4">
+              <h3 className="text-[10px] uppercase tracking-widest font-black text-maroon/40 italic">Suggested Responses</h3>
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-2 text-maroon bg-maroon/5 px-4 py-2 rounded-xl text-xs font-bold hover:bg-maroon/10 transition-colors"
+                title="Export as PDF"
+              >
+                <FileDown className="w-4 h-4" /> Export PDF
+              </button>
+            </div>
+            
+            <div id="result-content" className="grid gap-6">
+               {result.split('###').map((part, i) => {
+                  if (!part.trim()) return null;
+                  const [title, ...contentLines] = part.split('\n');
+                  const content = contentLines.join('\n').trim();
+                  return (
+                    <div key={i} className="bg-white p-8 rounded-[32px] border border-clay/5 shadow-sm hover:shadow-md transition-shadow">
+                       <h4 className="text-maroon font-serif text-lg mb-4 italic">{title.trim()}</h4>
+                       <div className="text-xl text-clay/80 leading-relaxed markdown-body font-sans">
+                          <ReactMarkdown>{content}</ReactMarkdown>
+                       </div>
+                    </div>
+                  );
+                })}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

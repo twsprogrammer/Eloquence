@@ -24,3 +24,12 @@ export interface Feature {
   description: string;
   icon: string;
 }
+
+export interface HistoryItem {
+  id: string;
+  user_id: string;
+  feature_type: FeatureKey | 'synonym-finder';
+  query_text: string;
+  result_text: string;
+  created_at: string;
+}

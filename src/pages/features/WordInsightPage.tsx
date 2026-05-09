@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { BookOpen, Loader2, SendHorizonal, Search } from 'lucide-react';
+import { BookOpen, Loader2, SendHorizonal, Search, FileDown } from 'lucide-react';
 import { askGemini } from '@/lib/gemini';
-import { cn } from '@/lib/utils';
+import { cn, exportToPDF } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { saveHistory } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function WordInsightPage() {
+  const { user } = useAuth();
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -35,6 +38,22 @@ Briefly introduce the word in one or two sentences.
     const output = await askGemini(prompt, systemPrompt);
     setResult(output);
     setLoading(false);
+
+    // Save to history
+    if (user && output) {
+      saveHistory({
+        user_id: user.id,
+        feature_type: 'word-insight',
+        query_text: text,
+        result_text: output
+      });
+    }
+  };
+
+  const handleExport = () => {
+    if (result) {
+      exportToPDF('result-content', `word-insight-${text.toLowerCase()}`);
+    }
   };
 
   return (
@@ -79,14 +98,26 @@ Briefly introduce the word in one or two sentences.
             animate={{ opacity: 1, y: 0 }}
             className="bg-white p-12 rounded-[48px] border border-clay/5 shadow-xl relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 p-8 text-maroon opacity-5">
-              <BookOpen className="w-32 h-32" />
+            <div className="absolute top-0 right-0 p-8 flex gap-2">
+              <button
+                onClick={handleExport}
+                className="bg-maroon/5 text-maroon p-3 rounded-full hover:bg-maroon/10 transition-colors tooltip relative group"
+                title="Export as PDF"
+              >
+                <FileDown className="w-6 h-6" />
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-clay text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Export PDF</span>
+              </button>
+              <div className="text-maroon opacity-5">
+                <BookOpen className="w-32 h-32" />
+              </div>
             </div>
             
-            <h2 className="text-5xl font-serif text-maroon mb-12 border-b border-maroon/5 pb-6">"{text}"</h2>
-            
-            <div className="markdown-body">
-              <ReactMarkdown>{result}</ReactMarkdown>
+            <div id="result-content">
+              <h2 className="text-5xl font-serif text-maroon mb-12 border-b border-maroon/5 pb-6">"{text}"</h2>
+              
+              <div className="markdown-body">
+                <ReactMarkdown>{result}</ReactMarkdown>
+              </div>
             </div>
           </motion.div>
         )}

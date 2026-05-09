@@ -26,7 +26,7 @@ export default function LoginPage() {
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isSupabaseConfigured) {
-      setError("Supabase belum dikonfigurasi.");
+      setError("Supabase is not configured.");
       return;
     }
     
@@ -45,7 +45,7 @@ export default function LoginPage() {
           }
         });
         if (signUpError) throw signUpError;
-        setError("Berhasil daftar! Silakan cek email Anda untuk konfirmasi (jika diaktifkan) atau coba masuk.");
+        setError("Sign up successful! Please check your email for confirmation (if enabled) or try signing in.");
         setMode('signin');
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -56,7 +56,7 @@ export default function LoginPage() {
         navigate('/app');
       }
     } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan sistem.');
+      setError(err.message || 'A system error occurred.');
     } finally {
       setLoading(false);
     }

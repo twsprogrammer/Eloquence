@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Hash, Loader2, SendHorizonal } from 'lucide-react';
+import { Hash, Loader2, SendHorizonal, FileDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { askGemini } from '@/lib/gemini';
-import { cn } from '@/lib/utils';
+import { cn, exportToPDF } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { saveHistory } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function SlangDecoderPage() {
+  const { user } = useAuth();
   const [text, setText] = useState('');
   const [mode, setMode] = useState<'sentence' | 'word'>('sentence');
   const [loading, setLoading] = useState(false);
@@ -24,6 +27,22 @@ export default function SlangDecoderPage() {
     const output = await askGemini(prompt, systemPrompt);
     setResult(output);
     setLoading(false);
+
+    // Save to history
+    if (user && output) {
+      saveHistory({
+        user_id: user.id,
+        feature_type: 'slang-decoder',
+        query_text: text,
+        result_text: output
+      });
+    }
+  };
+
+  const handleExport = () => {
+    if (result) {
+      exportToPDF('result-content', `slang-decoder-${Date.now()}`);
+    }
   };
 
   return (
@@ -84,13 +103,26 @@ export default function SlangDecoderPage() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-maroon text-cream p-10 rounded-[32px] shadow-2xl relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 p-8 opacity-10">
-              <Hash className="w-48 h-48" />
+            <div className="absolute top-4 right-4 z-20">
+              <button
+                onClick={handleExport}
+                className="bg-white/10 text-cream p-2 rounded-xl hover:bg-white/20 transition-colors group relative"
+                title="Export as PDF"
+              >
+                <FileDown className="w-5 h-5" />
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-white text-maroon text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Export PDF</span>
+              </button>
             </div>
-            <div className="relative z-10">
-              <h3 className="text-[10px] uppercase tracking-widest font-black mb-6 border-b border-cream/20 pb-4">Interpretation</h3>
-              <div className="text-xl md:text-2xl font-serif italic leading-relaxed markdown-body text-cream!">
-                <ReactMarkdown>{result}</ReactMarkdown>
+            
+            <div id="result-content">
+              <div className="absolute top-0 right-0 p-8 opacity-10">
+                <Hash className="w-48 h-48" />
+              </div>
+              <div className="relative z-10">
+                <h3 className="text-[10px] uppercase tracking-widest font-black mb-6 border-b border-cream/20 pb-4">Interpretation</h3>
+                <div className="text-xl md:text-2xl font-serif italic leading-relaxed markdown-body text-cream!">
+                  <ReactMarkdown>{result}</ReactMarkdown>
+                </div>
               </div>
             </div>
           </motion.div>
