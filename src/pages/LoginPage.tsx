@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
@@ -23,7 +23,7 @@ export default function LoginPage() {
     }
   }, [user, authLoading, navigate]);
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isSupabaseConfigured) {
       setError("Supabase is not configured.");
@@ -33,23 +33,28 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
+    // Create a virtual email from username for Supabase Auth
+    // This allows users to login with just username
+    const virtualEmail = identifier.includes('@') ? identifier : `${identifier.trim().toLowerCase()}@eloquence.app`;
+
     try {
       if (mode === 'signup') {
         const { error: signUpError } = await supabase.auth.signUp({
-          email,
+          email: virtualEmail,
           password,
           options: {
             data: {
-              username: email.split('@')[0],
+              username: identifier.trim(),
+              full_name: identifier.trim(), // Default to username for now
             }
           }
         });
         if (signUpError) throw signUpError;
-        setError("Sign up successful! Please check your email for confirmation (if enabled) or try signing in.");
+        setError("Registrasi berhasil! Silakan masuk menggunakan akun Anda.");
         setMode('signin');
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
+          email: virtualEmail,
           password,
         });
         if (signInError) throw signInError;
@@ -102,15 +107,15 @@ export default function LoginPage() {
             </p>
           </header>
 
-          <form onSubmit={handleEmailAuth} className="space-y-4">
+          <form onSubmit={handleAuth} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-maroon uppercase tracking-widest ml-1">Email Address</label>
+              <label className="text-[10px] font-bold text-maroon uppercase tracking-widest ml-1">Username</label>
               <input 
-                type="email"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="Masukkan username"
                 className="w-full bg-cream/30 border-2 border-transparent focus:border-maroon/20 focus:bg-white rounded-2xl px-5 py-3.5 outline-none transition-all text-sm"
               />
             </div>

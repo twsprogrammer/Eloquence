@@ -95,7 +95,7 @@ export default function DashboardPage() {
         >
           <h2 className="text-sm font-bold uppercase tracking-widest text-clay/40 mb-2">Linguistic Assistant</h2>
           <h1 className="text-5xl font-serif mb-6">
-            Good to see you, <span className="text-maroon italic">{profile?.username}</span>.
+            Good to see you, <span className="text-maroon italic">{profile?.full_name || profile?.username}</span>.
           </h1>
           <p className="text-clay/60 border-l-2 border-maroon/20 pl-6 py-2 italic font-serif">
             Eloquence helps you adapt your English to any situation—whether professional, social, or creative. 
