@@ -17,6 +17,7 @@ import SynonymFinderPage from '@/pages/features/SynonymFinderPage';
 import QuickReplyPage from '@/pages/features/QuickReplyPage';
 import SlangDecoderPage from '@/pages/features/SlangDecoderPage';
 import LevelSimplifierPage from '@/pages/features/LevelSimplifierPage';
+import VoiceConverterPage from '@/pages/features/VoiceConverterPage';
 import AdminPanelPage from '@/pages/AdminPanelPage';
 
 function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode, adminOnly?: boolean }) {
@@ -82,6 +83,7 @@ export default function App() {
             <Route path="quick-reply" element={<QuickReplyPage />} />
             <Route path="slang-decoder" element={<SlangDecoderPage />} />
             <Route path="level-simplifier" element={<LevelSimplifierPage />} />
+            <Route path="voice-converter" element={<VoiceConverterPage />} />
             
             {/* Admin Routes */}
             <Route 

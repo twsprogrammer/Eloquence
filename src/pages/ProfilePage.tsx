@@ -85,16 +85,23 @@ export default function ProfilePage() {
     setMessage(null);
 
     try {
+      // Build update object dynamically to allow partial updates
+      const updateData: any = {};
+      if (formData.fullName !== undefined) updateData.full_name = formData.fullName;
+      if (formData.username !== undefined) updateData.username = formData.username;
+      if (formData.avatarUrl !== undefined) updateData.avatar_url = formData.avatarUrl;
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          full_name: formData.fullName,
-          username: formData.username,
-          avatar_url: formData.avatarUrl
-        })
+        .update(updateData)
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('avatar_url')) {
+          throw new Error('Database error: The "avatar_url" column is missing. Please add it to your Supabase "profiles" table to use the photo feature.');
+        }
+        throw error;
+      }
       
       await refreshProfile();
       setMessage({ type: 'success', text: 'Profile updated successfully!' });

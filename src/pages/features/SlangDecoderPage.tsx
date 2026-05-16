@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Hash, Loader2, SendHorizonal, FileDown } from 'lucide-react';
+import { Hash, Loader2, SendHorizonal, FileDown, Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { askGemini } from '@/lib/gemini';
 import { cn, exportToPDF } from '@/lib/utils';
@@ -13,6 +13,7 @@ export default function SlangDecoderPage() {
   const [mode, setMode] = useState<'sentence' | 'word'>('sentence');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleProcess = async () => {
     if (!text.trim()) return;
@@ -43,6 +44,13 @@ export default function SlangDecoderPage() {
     if (result) {
       exportToPDF('result-content', `slang-decoder-${Date.now()}`);
     }
+  };
+
+  const copyToClipboard = () => {
+    if (!result) return;
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -103,7 +111,7 @@ export default function SlangDecoderPage() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-maroon text-cream p-10 rounded-[32px] shadow-2xl relative overflow-hidden"
           >
-            <div className="absolute top-4 right-4 z-20">
+            <div className="absolute top-4 right-4 z-20 flex gap-2">
               <button
                 onClick={handleExport}
                 className="bg-white/10 text-cream p-2 rounded-xl hover:bg-white/20 transition-colors group relative"
@@ -111,6 +119,14 @@ export default function SlangDecoderPage() {
               >
                 <FileDown className="w-5 h-5" />
                 <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-white text-maroon text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Export PDF</span>
+              </button>
+              <button
+                onClick={copyToClipboard}
+                className="bg-white/10 text-cream p-2 rounded-xl hover:bg-white/20 transition-colors group relative"
+                title="Copy result"
+              >
+                {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-white text-maroon text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Copy Result</span>
               </button>
             </div>
             

@@ -13,7 +13,8 @@ import {
   ChevronRight,
   ShieldAlert,
   UserCircle,
-  History
+  History,
+  Repeat
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,7 @@ const navItems = [
   { to: '/app/quick-reply', icon: MessageSquare, label: 'Quick Reply' },
   { to: '/app/slang-decoder', icon: Hash, label: 'Slang Decoder' },
   { to: '/app/level-simplifier', icon: Zap, label: 'Level Simplifier' },
+  { to: '/app/voice-converter', icon: Repeat, label: 'Voice Converter' },
   { to: '/app/profile', icon: UserCircle, label: 'My Profile' },
 ];
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, Loader2, SendHorizonal, FileDown } from 'lucide-react';
+import { MessageSquare, Loader2, SendHorizonal, FileDown, Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { askGemini } from '@/lib/gemini';
 import { cn, exportToPDF } from '@/lib/utils';
@@ -13,6 +13,7 @@ export default function QuickReplyPage() {
   const [tone, setTone] = useState('polite');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const tones = [
     { id: 'polite', label: 'Polite' },
@@ -57,6 +58,13 @@ Output Format:
     if (result) {
       exportToPDF('result-content', `quick-reply-${Date.now()}`);
     }
+  };
+
+  const copyToClipboard = () => {
+    if (!result) return;
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -118,13 +126,23 @@ Output Format:
           >
             <div className="flex justify-between items-center px-4">
               <h3 className="text-[10px] uppercase tracking-widest font-black text-maroon/40 italic">Suggested Responses</h3>
-              <button
-                onClick={handleExport}
-                className="flex items-center gap-2 text-maroon bg-maroon/5 px-4 py-2 rounded-xl text-xs font-bold hover:bg-maroon/10 transition-colors"
-                title="Export as PDF"
-              >
-                <FileDown className="w-4 h-4" /> Export PDF
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleExport}
+                  className="flex items-center gap-2 text-maroon bg-maroon/5 px-4 py-2 rounded-xl text-xs font-bold hover:bg-maroon/10 transition-colors"
+                  title="Export as PDF"
+                >
+                  <FileDown className="w-4 h-4" /> Export PDF
+                </button>
+                <button
+                  onClick={copyToClipboard}
+                  className="flex items-center gap-2 text-maroon bg-maroon/5 px-4 py-2 rounded-xl text-xs font-bold hover:bg-maroon/10 transition-colors"
+                  title="Copy result"
+                >
+                  {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                  {copied ? "Copied" : "Copy Result"}
+                </button>
+              </div>
             </div>
             
             <div id="result-content" className="grid gap-6">

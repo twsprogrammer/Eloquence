@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Loader2, SendHorizonal, Search, FileDown } from 'lucide-react';
+import { BookOpen, Loader2, SendHorizonal, Search, FileDown, Copy, Check } from 'lucide-react';
 import { askGemini } from '@/lib/gemini';
 import { cn, exportToPDF } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,7 @@ export default function WordInsightPage() {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const handleProcess = async () => {
     if (!text.trim()) return;
@@ -54,6 +55,13 @@ Briefly introduce the word in one or two sentences.
     if (result) {
       exportToPDF('result-content', `word-insight-${text.toLowerCase()}`);
     }
+  };
+
+  const copyToClipboard = () => {
+    if (!result) return;
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -106,6 +114,14 @@ Briefly introduce the word in one or two sentences.
               >
                 <FileDown className="w-6 h-6" />
                 <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-clay text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Export PDF</span>
+              </button>
+              <button
+                onClick={copyToClipboard}
+                className="bg-maroon/5 text-maroon p-3 rounded-full hover:bg-maroon/10 transition-colors group relative"
+                title="Copy result"
+              >
+                {copied ? <Check className="w-6 h-6 text-green-600" /> : <Copy className="w-6 h-6" />}
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-clay text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Copy Result</span>
               </button>
               <div className="text-maroon opacity-5">
                 <BookOpen className="w-32 h-32" />

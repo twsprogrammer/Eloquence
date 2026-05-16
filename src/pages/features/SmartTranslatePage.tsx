@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Languages, Loader2, SendHorizonal, FileDown } from 'lucide-react';
+import { Languages, Loader2, SendHorizonal, FileDown, Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { askGemini } from '@/lib/gemini';
 import { cn, exportToPDF } from '@/lib/utils';
@@ -14,6 +14,7 @@ export default function SmartTranslatePage() {
   const [context, setContext] = useState('casual');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const contexts = [
     { id: 'formal', label: 'Formal' },
@@ -65,6 +66,13 @@ Rules:
     if (result) {
       exportToPDF('result-content', `translate-${Date.now()}`);
     }
+  };
+
+  const copyToClipboard = () => {
+    if (!result) return;
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -145,7 +153,7 @@ Rules:
             animate={{ opacity: 1, y: 0 }}
             className="bg-white p-10 rounded-[32px] border border-clay/5 shadow-xl relative"
           >
-            <div className="absolute top-6 right-6">
+            <div className="absolute top-6 right-6 flex gap-2">
               <button
                 onClick={handleExport}
                 className="bg-maroon/5 text-maroon p-2 rounded-full hover:bg-maroon/10 transition-colors group relative"
@@ -153,6 +161,14 @@ Rules:
               >
                 <FileDown className="w-5 h-5" />
                 <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-clay text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Export PDF</span>
+              </button>
+              <button 
+                onClick={copyToClipboard}
+                className="bg-maroon/5 text-maroon p-2 rounded-full hover:bg-maroon/10 transition-colors group relative"
+                title="Copy result"
+              >
+                {copied ? <Check className="w-5 h-5 text-green-600" /> : <Copy className="w-5 h-5" />}
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-clay text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Copy Result</span>
               </button>
             </div>
             

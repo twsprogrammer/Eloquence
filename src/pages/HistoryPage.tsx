@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { HistoryItem } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { History, Search, Clock, Trash2, ChevronRight, FileText, Languages, MessageSquare, BookOpen, Quote, Sparkles, Filter, FileDown } from 'lucide-react';
+import { History, Search, Clock, Trash2, ChevronRight, FileText, Languages, MessageSquare, BookOpen, Quote, Sparkles, Filter, FileDown, Repeat } from 'lucide-react';
 import { cn, exportToPDF } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 
@@ -15,6 +15,7 @@ const FEATURE_ICONS: Record<string, any> = {
   'slang-decoder': Quote,
   'level-simplifier': FileText,
   'synonym-finder': Search,
+  'voice-converter': Repeat,
 };
 
 export default function HistoryPage() {

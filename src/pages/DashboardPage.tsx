@@ -9,7 +9,8 @@ import {
   Hash, 
   Zap,
   ArrowRight,
-  Search
+  Search,
+  Repeat
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -69,6 +70,14 @@ const tools = [
     icon: Zap, 
     color: 'bg-maroon/5 text-maroon',
     path: '/app/level-simplifier'
+  },
+  { 
+    id: 'voice-converter', 
+    title: 'Voice Converter', 
+    desc: 'Switch between Active & Passive voice.',
+    icon: Repeat, 
+    color: 'bg-maroon/5 text-maroon',
+    path: '/app/voice-converter'
   },
 ];
 
